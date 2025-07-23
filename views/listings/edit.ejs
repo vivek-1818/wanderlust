@@ -4,36 +4,54 @@
         <div class="col-8 offset-2">
             <br><br>
             <h3>Edit your Listing</h3>
-            <form action="/listings/<%= listing._id %>?_method=put" method="post">
+            <form action="/listings/<%= listing._id %>?_method=put" method="post" class="needs-validation" novalidate >
                 <div class="mb-3">
                     <label for="title" class="form-label">Title</label>
-                    <input name="listings[title]" type="text" placeholder="Enter title" class="form-control" value="<%= listing.title %>">
+                    <input name="listings[title]" type="text" placeholder="Enter title" class="form-control" value="<%= listing.title %>" required>
+                        <div class="invalid-feedback">
+                            Please Enter Valid title
+                        </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
-                    <textarea name="listings[description]" placeholder="Enter description" class="form-control"><%= listing.description %></textarea>
+                    <textarea name="listings[description]" placeholder="Enter description" class="form-control" required><%= listing.description %></textarea>
+                        <div class="invalid-feedback">
+                            Enter short description
+                        </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="image" class="form-label">Image Link</label>
-                    <input name="listings[image][url]" type="text" placeholder="Enter image URL/Link" class="form-control" value="<%= listing.image.url %>">
+                    <input name="listings[image][url]" type="text" required replaceholder="Enter image URL/Link" class="form-control" value="<%= listing.image.url %>">
+                        <div class="invalid-feedback">
+                            Please Enter Valid image link
+                        </div>
                 </div>
 
                 <div class="row">
                     <div class="mb-3 col-md-4">
                         <label for="price" class="form-label">Price</label>
-                        <input name="listings[price]" type="number" placeholder="Enter Price" class="form-control" value="<%= listing.price %>">
+                        <input name="listings[price]"  required placeholder="Enter Price" class="form-control" value="<%= listing.price %>">
+                            <div class="invalid-feedback">
+                                Please Enter Valid price
+                            </div>
                     </div>
                     <div class="mb-3 col-md-8">
                         <label for="country" class="form-label">Country</label>
-                        <input name="listings[country]" type="text" placeholder="Enter Country" class="form-control" value="<%= listing.country %>">
+                        <input name="listings[country]" type="text" required placeholder="Enter Country" class="form-control" value="<%= listing.country %>">
+                            <div class="invalid-feedback">
+                                Please Enter Valid Country
+                            </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="location" class="form-label">Location</label>
-                    <input name="listings[location]" type="text" placeholder="Enter location" class="form-control" value="<%= listing.location %>">
+                    <input name="listings[location]" type="text" required placeholder="Enter location" class="form-control" value="<%= listing.location %>">
+                        <div class="invalid-feedback">
+                            Please Enter Valid Location
+                        </div>
                 </div>
 
                 <button class="btn btn-dark edit-btn">Edit</button>
@@ -41,4 +59,5 @@
             </form>
         </div>
     </div>
+    <script src="/js/script.js"></script>
 </body>

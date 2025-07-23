@@ -6,6 +6,8 @@ const ejsMate = require("ejs-mate")
 const app = express();
 const methodOverride = require("method-override")
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const wrapAsync = require("./utils/wrapAsync.js")
+const ExpressError = require("./utils/ExpressError.js")
 
 app.set("view engine", "ejs")
 app.set("views",path.join(__dirname,"views"))
@@ -28,26 +30,29 @@ app.get("/",function(req,res){
 })
 
 //Edit route
-app.get("/listings/:id/edit", async function(req,res){
+app.get("/listings/:id/edit", wrapAsync(async function(req,res){
     let {id} = req.params;
     const listing = await Listing.findById(id);
     res.render("listings/edit.ejs",{listing})
-})
+}))
 
 //update route
-app.put("/listings/:id",async function(req,res){
+app.put("/listings/:id", wrapAsync(async function(req,res){
+    if (!req.body || !req.body.listings) {
+        throw new ExpressError(400, "Send valid data for listing");
+    }
     let {id} = req.params;
     await Listing.findByIdAndUpdate(id, {...req.body.listings})
     res.redirect(`/listings/${id}`)
-})
+}))
 
 //delete route
-app.delete("/listings/:id",async function(req,res){
+app.delete("/listings/:id", wrapAsync(async function(req,res){
     let {id} = req.params;
     const deletedListing = await Listing.findByIdAndDelete(id)
     console.log(deletedListing);
     res.redirect("/listings")
-})
+}))
 
 // app.get("/testListing",async function(req,res){
 //     let sampleListing = new Listing({
@@ -64,10 +69,10 @@ app.delete("/listings/:id",async function(req,res){
 // })
 
 //index route
-app.get("/listings",async function(req,res){
+app.get("/listings",wrapAsync(async function(req,res){
     const allListing = await Listing.find({});
     res.render("listings/index.ejs", {allListing})
-})
+}))
 
 //new listing route
 app.get("/listings/new",function(req,res){
@@ -84,7 +89,11 @@ app.get("/listings/new",function(req,res){
 //     console.log(listing)
 // })
 
-app.post("/listings", async function (req, res) {
+app.post("/listings", wrapAsync(async function (req, res, next) {
+    if (!req.body || !req.body.listings) {
+        throw new ExpressError(400, "Send valid data for listing");
+    }
+
     let listing = req.body.listings;
 
     // Fix the image structure manually
@@ -97,16 +106,26 @@ app.post("/listings", async function (req, res) {
     const newListing = new Listing(listing);
     await newListing.save();
     res.redirect("/listings");
-});
+    
+}));
 
 
 //show route
-app.get("/listings/:id",async function(req,res){
+app.get("/listings/:id",wrapAsync(async function(req,res){
     let {id} = req.params;
     const listing = await Listing.findById(id)
     res.render("listings/show.ejs",{listing})
     // console.log(listing);
-})
+}))
 
+// app.all("*", function(req,res,next){
+//     next(new ExpressError(404, "Page not Found!"))
+// })
+
+app.use(function(err, req, res, next){
+    let {statusCode=500, message="Something went wrong!"} = err;
+    res.status(statusCode).render("error.ejs", {message})
+    // res.status(statusCode).send(message)
+})
 
 app.listen(8080);
