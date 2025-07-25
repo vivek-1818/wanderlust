@@ -8,6 +8,7 @@ const methodOverride = require("method-override")
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 const wrapAsync = require("./utils/wrapAsync.js")
 const ExpressError = require("./utils/ExpressError.js")
+const {listingSchema} = require("./schema.js")
 
 app.set("view engine", "ejs")
 app.set("views",path.join(__dirname,"views"))
@@ -25,6 +26,16 @@ async function main(){
     await mongoose.connect(MONGO_URL);
 }
 
+function validateListing (req,res,next){
+    let {error} = listingSchema.validate(req.body);
+    if(error){
+        console.log(error)
+        throw new ExpressError(400, error)
+    }else{
+        next()
+    }
+}
+
 app.get("/",function(req,res){
     res.send("This is root")
 })
@@ -37,10 +48,10 @@ app.get("/listings/:id/edit", wrapAsync(async function(req,res){
 }))
 
 //update route
-app.put("/listings/:id", wrapAsync(async function(req,res){
-    if (!req.body || !req.body.listings) {
-        throw new ExpressError(400, "Send valid data for listing");
-    }
+app.put("/listings/:id", validateListing,wrapAsync(async function(req,res){
+    // if (!req.body || !req.body.listings) {
+    //     throw new ExpressError(400, "Send valid data for listing");
+    // }
     let {id} = req.params;
     await Listing.findByIdAndUpdate(id, {...req.body.listings})
     res.redirect(`/listings/${id}`)
@@ -89,11 +100,13 @@ app.get("/listings/new",function(req,res){
 //     console.log(listing)
 // })
 
-app.post("/listings", wrapAsync(async function (req, res, next) {
-    if (!req.body || !req.body.listings) {
-        throw new ExpressError(400, "Send valid data for listing");
-    }
-
+app.post("/listings", validateListing, wrapAsync(async function (req, res, next) {
+    
+    // let result = listingSchema.validate(req.body);
+    // console.log(result)
+    // if(result.error){
+    //     throw new ExpressError(400, result.error)
+    // }
     let listing = req.body.listings;
 
     // Fix the image structure manually
