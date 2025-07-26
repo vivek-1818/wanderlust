@@ -8,7 +8,8 @@ const methodOverride = require("method-override")
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 const wrapAsync = require("./utils/wrapAsync.js")
 const ExpressError = require("./utils/ExpressError.js")
-const {listingSchema} = require("./schema.js")
+const {listingSchema, reviewsSchema} = require("./schema.js")
+const Review = require("./models/reviews.js")
 
 app.set("view engine", "ejs")
 app.set("views",path.join(__dirname,"views"))
@@ -35,6 +36,17 @@ function validateListing (req,res,next){
         next()
     }
 }
+
+function validateReview (req,res,next){
+    let {error} = reviewsSchema.validate(req.body);
+    if(error){
+        console.log(error)
+        throw new ExpressError(400, error)
+    }else{
+        next()
+    }
+}
+
 
 app.get("/",function(req,res){
     res.send("This is root")
@@ -63,6 +75,20 @@ app.delete("/listings/:id", wrapAsync(async function(req,res){
     const deletedListing = await Listing.findByIdAndDelete(id)
     console.log(deletedListing);
     res.redirect("/listings")
+}))
+
+//reviews 
+//Post route
+app.post("/listings/:id/reviews",validateReview, wrapAsync(async function(req,res){
+    let listing = await Listing.findById(req.params.id)
+    let newReview = new Review(req.body.review)
+
+    listing.reviews.push(newReview)
+
+    await newReview.save()
+    await listing.save()
+
+    res.redirect(`/listings/${listing._id}`)
 }))
 
 // app.get("/testListing",async function(req,res){
@@ -101,12 +127,6 @@ app.get("/listings/new",function(req,res){
 // })
 
 app.post("/listings", validateListing, wrapAsync(async function (req, res, next) {
-    
-    // let result = listingSchema.validate(req.body);
-    // console.log(result)
-    // if(result.error){
-    //     throw new ExpressError(400, result.error)
-    // }
     let listing = req.body.listings;
 
     // Fix the image structure manually
@@ -115,11 +135,9 @@ app.post("/listings", validateListing, wrapAsync(async function (req, res, next)
         url: imageUrl,
         filename: "listingimage"  // or extract from URL if needed
     };
-
     const newListing = new Listing(listing);
     await newListing.save();
     res.redirect("/listings");
-    
 }));
 
 
