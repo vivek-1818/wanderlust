@@ -6,7 +6,7 @@
                 <h3>
                     <%= listing.title %>
                 </h3>
-                <div class="card col-6 show-card ">
+                <div class="card col-6 show-card listing-card">
                     <img src="<%=listing.image.url %>" class="card-img-top show-img" alt="image_show">
                     <div class="card-body">
                         <p class="card-text">
@@ -36,12 +36,31 @@
                 </div>
                 <div class="mb-3">
                     <label for="comment" class="form-label">Comment</label>
-                    <textarea name="review[comment]" id="comment" cols="30" rows="5" class="form-control" required></textarea>
+                    <textarea name="review[comment]" id="comment" cols="30" rows="5" class="form-control"
+                        required></textarea>
                     <div class="invalid-feedback">
                         Please add some comment
                     </div>
                 </div>
                 <button class="btn btn-outline-dark">Submit</button>
             </form>
+
+            <hr>
+            <p><b>All Reviews</b></p>
+            <div class="row ">
+                <% for(review of listing.reviews){ %>
+                    <div class="card col-5 ms-3 mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">Test</h6>
+                            <p class="card-text">
+                                Comment: <%=review.comment%>
+                            </p>
+                            <p class="card-text">
+                                Rating: <%=review.rating%>  ⭐
+                            </p>
+                        </div>
+                    </div>
+                    <% } %>
+            </div>
         </div>
     </body>
