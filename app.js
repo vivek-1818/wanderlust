@@ -8,9 +8,13 @@ const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 // const ExpressError = require("../utils/ExpressError.js") 
 const session = require("express-session")
 const flash = require("connect-flash")
+const passport = require("passport")
+const LocalStrategy = require("passport-local")
+const User = require("./models/user.js")
 
-const { router: listing } = require("./routes/listing.js");
-const reviews = require("./routes/review.js")
+const { router: listingRouter } = require("./routes/listing.js");
+const reviewsRouter = require("./routes/review.js")
+const userRouter = require("./routes/user.js")
 
 const sessionOptons = {
     secret: "mysecret",
@@ -31,6 +35,11 @@ app.engine("ejs",ejsMate)
 app.use(express.static(path.join(__dirname,"/public")))
 app.use(session(sessionOptons))
 app.use(flash())
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStrategy(User.authenticate()))
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
 
 main().then(()=>{
     console.log("Connection successful with DB")
@@ -45,13 +54,23 @@ async function main(){
 app.use(function(req,res,next){
     res.locals.success = req.flash("success")
     res.locals.error = req.flash("error")
+    res.locals.currUser = req.user;
     next()
 })
 
-app.use("/listings", listing); 
-app.use("/listings/:id/reviews", reviews)
+app.get("/demouser",async function(req,res){
+    let fakeuser = new User({
+        email: "vivo@gmail.com",
+        username: "test"
+    })
 
+    let registeruser = await User.register(fakeuser, "passtest")
+    res.send(registeruser)
+})
 
+app.use("/listings", listingRouter); 
+app.use("/listings/:id/reviews", reviewsRouter)
+app.use("/", userRouter)
 
 
 app.get("/",function(req,res){

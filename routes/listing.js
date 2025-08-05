@@ -4,6 +4,7 @@ const wrapAsync = require("../utils/wrapAsync.js")
 const {listingSchema, reviewsSchema} = require("../schema.js")
 const ExpressError = require("../utils/ExpressError.js")
 const Listing = require("../models/listing.js")
+const { isLoggedIn } = require("../middleware.js")
 
 
 function validateListing (req,res,next){
@@ -24,7 +25,7 @@ router.get("/",wrapAsync(async function(req,res){
 }))
 
 //new listing route
-router.get("/new",function(req,res){
+router.get("/new",isLoggedIn, function(req,res){
     res.render("listings/new.ejs")
 })
 
@@ -41,7 +42,7 @@ router.get("/:id",wrapAsync(async function(req,res){
 }))
 
 //create
-router.post("/", validateListing, wrapAsync(async function (req, res, next) {
+router.post("/", validateListing, isLoggedIn, wrapAsync(async function (req, res, next) {
     let listing = req.body.listings;
 
     // Fix the image structure manually
@@ -57,7 +58,7 @@ router.post("/", validateListing, wrapAsync(async function (req, res, next) {
 }));
 
 //Edit route
-router.get("/:id/edit", wrapAsync(async function(req,res){
+router.get("/:id/edit", isLoggedIn, wrapAsync(async function(req,res){
     let {id} = req.params;
     const listing = await Listing.findById(id);
     if(!listing){
@@ -84,7 +85,7 @@ router.put("/:id", validateListing, wrapAsync(async function (req, res) {
 
 
 //delete route
-router.delete("/:id", wrapAsync(async function(req,res){
+router.delete("/:id",isLoggedIn, wrapAsync(async function(req,res){
     let {id} = req.params;
     const deletedListing = await Listing.findByIdAndDelete(id)
     console.log(deletedListing);
