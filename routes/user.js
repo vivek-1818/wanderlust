@@ -42,7 +42,7 @@ router.post("/login", saveRedirectUrl, passport.authenticate("local", {
     failureFlash: true
 }), async function (req, res) {
     req.flash("success", "Welcome back to Wandurlust!");
-    let redirectUrl = res.locals.redirectUrl || "/listings"; // 
+    let redirectUrl = res.locals.redirectUrl || "/listings"; 
     delete req.session.redirectUrl;
     res.redirect(redirectUrl);
 });
