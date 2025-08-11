@@ -1,10 +1,13 @@
+if(process.env.NODE_ENV != "production"){
+    require("dotenv").config()
+}
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path")
 const ejsMate = require("ejs-mate")
 const app = express();
 const methodOverride = require("method-override")
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const MONGO_URL = process.env.MONGO_URL;
 // const ExpressError = require("../utils/ExpressError.js") 
 const session = require("express-session")
 const flash = require("connect-flash")
@@ -17,7 +20,7 @@ const reviewsRouter = require("./routes/review.js")
 const userRouter = require("./routes/user.js")
 
 const sessionOptons = {
-    secret: "mysecret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {

@@ -9,14 +9,8 @@ const listingSchema = new Schema({
     },
     description: String,
     image: {
-        filename: {
-            type: String,
-            default: "default_image"
-        },
-        url: {
-            type: String,
-            default: "https://images.pexels.com/photos/9080953/pexels-photo-9080953.jpeg"
-        }
+        url: String,
+        filename: String
     },
     price: Number,
     location: String,
