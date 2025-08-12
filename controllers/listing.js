@@ -71,7 +71,7 @@ module.exports.updateListing = async function (req, res) {
     let { id } = req.params;
     const listing = await Listing.findByIdAndUpdate(
         id, 
-        req.body.listing, 
+        req.body.listings, 
         { runValidators: true, new: true }
     );
 
