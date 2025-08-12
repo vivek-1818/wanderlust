@@ -91,9 +91,9 @@ app.use("/listings/:id/reviews", reviewsRouter)
 app.use("/", userRouter)
 
 
-// app.get("/",function(req,res){
-//     res.send("This is root")
-// })
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
 
 // app.all("*", function(req,res,next){
 //     next(new ExpressError(404, "Page not Found!"))
